@@ -1,15 +1,122 @@
-// app/page.tsx
+import Image from "next/image";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Home() {
+  const [stats, setStats] = useState({
+    studentCount: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data } = await axios.get('/api/students');
+        setStats({
+          studentCount: data.data.length
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchStats();
+  }, []);
+
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-center p-6">
-      <h1 className="text-4xl font-bold text-blue-700 mb-4">Welcome to School ERP</h1>
-      <p className="text-lg text-gray-700 mb-6">
-        Manage students, teachers, classes, and more efficiently.
-      </p>
-      <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-        Get Started
-      </button>
-    </main>
+    <div className="grid grid-rows-[60px_1fr_60px] min-h-screen font-[family-name:var(--font-geist-sans)]">
+      {/* Navigation Bar */}
+      <nav className="flex justify-between items-center bg-[#1a365d] text-white px-8">
+        <div className="text-2xl font-bold">
+          <Link href="/">
+            <a>School ERP</a>
+          </Link>
+        </div>
+        <div className="flex gap-6">
+          <Link href="/">
+            <a className="py-2 hover:underline">Dashboard</a>
+          </Link>
+          <Link href="/students">
+            <a className="py-2 hover:underline">Students</a>
+          </Link>
+          <Link href="/students/add">
+            <a className="py-2 hover:underline">Add Student</a>
+          </Link>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="p-8 max-w-6xl mx-auto w-full">
+        {loading ? (
+          <div className="text-center py-8">Loading...</div>
+        ) : (
+          <div className="flex flex-col gap-8">
+            <h1 className="text-3xl font-bold">School ERP Dashboard</h1>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Student Count Card */}
+              <div className="bg-white p-6 rounded-lg shadow-md text-center">
+                <h2 className="text-xl font-semibold mb-2">Total Students</h2>
+                <p className="text-4xl font-bold text-[#2c5282]">{stats.studentCount}</p>
+              </div>
+
+              {/* Quick Actions Card */}
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+                <div className="flex flex-col gap-3">
+                  <Link href="/students/add">
+                    <a className="bg-[#2c5282] text-white py-2 px-4 rounded text-center hover:bg-[#1a365d] transition-colors">
+                      Add New Student
+                    </a>
+                  </Link>
+                  <Link href="/students">
+                    <a className="bg-gray-100 py-2 px-4 rounded text-center hover:bg-gray-200 transition-colors">
+                      View All Students
+                    </a>
+                  </Link>
+                </div>
+              </div>
+
+              {/* System Info Card */}
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold mb-4">System Info</h2>
+                <div className="text-sm">
+                  <p className="flex justify-between py-1 border-b">
+                    <span>Version:</span>
+                    <span className="font-medium">1.0.0</span>
+                  </p>
+                  <p className="flex justify-between py-1 border-b">
+                    <span>Last Update:</span>
+                    <span className="font-medium">May 6, 2025</span>
+                  </p>
+                  <p className="flex justify-between py-1">
+                    <span>Status:</span>
+                    <span className="text-green-600 font-medium">Online</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Activity Section */}
+            <div className="mt-6">
+              <h2 className="text-2xl font-bold mb-4">Recent Activity</h2>
+              <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="p-4 bg-gray-50 border-b">
+                  <p className="text-gray-500">No recent activities to display</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-100 flex justify-center items-center text-sm text-gray-600">
+        <div>School ERP System © 2025 - All Rights Reserved</div>
+      </footer>
+    </div>
   );
 }
